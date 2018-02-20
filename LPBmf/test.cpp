@@ -67,20 +67,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	Wolfe(x6,y0,s0);
 	std::cout<<"x6="<<x6<<" and y0="<<y0<<" and s0="<<s0<<std::endl;*/
 
-	/*VectorXd mxl(50), mxl1(1000), mxl2(2000);
+	VectorXd mxl(50), mxl1(1000), mxl2(2000);
 	mxl.setOnes(); mxl1.setOnes(); mxl2.setOnes();
 	mxl = mxl*0.4; mxl1 = mxl1*0.4; mxl2 = mxl2*0.4;
 	OutData oml, oml1, oml2;
 	ProbData MXL = { "MXLHIB",0.0 };
 	oml=LPB(MXL, mxl, GenMXHILB);
 	oml1=LPB(MXL, mxl1, GenMXHILB);
-	oml2=LPB(MXL, mxl2, GenMXHILB);*/
+	oml2=LPB(MXL, mxl2, GenMXHILB);
 	
-	
-	
-
 	//copy(out, out + Num_of_Probs, ostream_iterator<OutData>(cout, "\n "));
-	
 		
 	//for (j = 1; j < 8; j++)
 	//{
@@ -88,10 +84,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	//myfile << j << '&' << out[j - 1].Error << '&' << out[j - 1].No_func_eval;
 	//	//myfile <<'&' << out[j - 1].k << '&' << out[j - 1].L << '&' << out[j - 1].time << '&' << out[j - 1].t_CPX << "\\\\" << endl << "\\hline" << endl;
 	//}
-	/*myfile << '8' << '&' << oml.Error << '&' << oml.No_func_eval << '&' << oml.k << '&' << oml.L << '&' << oml.time << '&' << oml.t_CPX << "\\\\" << endl << "\\hline" << endl;
-	myfile << '9'<< '&' << oml1.Error << '&' << oml1.No_func_eval << '&' << oml1.k << '&' << oml1.L << '&' << oml1.time << '&' << oml1.t_CPX << "\\\\" << endl << "\\hline" << endl;
-	myfile << "10" << '&' << oml2.Error << '&' << oml2.No_func_eval << '&' << oml2.k << '&' << oml2.L << '&' << oml2.time << '&' << oml2.t_CPX << "\\\\" << endl << "\\hline" << endl;*/
-
-	fclose(myfile);
+	ofstream myfi;
+	myfi << '8' << '&' << oml.Error << '&' << oml.No_func_eval << '&' << oml.k << '&' << oml.L << '&' << oml.time << '&' << oml.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	myfi << '9'<< '&' << oml1.Error << '&' << oml1.No_func_eval << '&' << oml1.k << '&' << oml1.L << '&' << oml1.time << '&' << oml1.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	myfi << "10" << '&' << oml2.Error << '&' << oml2.No_func_eval << '&' << oml2.k << '&' << oml2.L << '&' << oml2.time << '&' << oml2.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	myfi.close();
 	return 0;
 	}
