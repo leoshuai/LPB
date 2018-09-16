@@ -8,7 +8,8 @@ template<typename T>double one_norm(T& x)// One norm of a vector
 	}
 using namespace Eigen;
 using namespace std;
-void CB2(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
+typedef const Eigen::Ref<const Eigen::VectorXd> cVec;
+void CB2(cVec &  x,double &y,Ref<VectorXd> s)
 	{
 	VectorXd t(3);
 	t<<pow(x(1),4)+pow(x(0),2),pow(2-x(0),2)+pow(2-x(1),2),2*exp(x(1)-x(0));
@@ -100,7 +101,7 @@ void CB2(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
 			}
 		}
 	}
-void CB3(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
+void CB3(cVec &  x,double &y,Ref<VectorXd> s)
 	{
 	VectorXd t(3);
 	t<<pow(x(1),2)+pow(x(0),4),pow(2-x(0),2)+pow(2-x(1),2),2*exp(x(1)-x(0));
@@ -192,7 +193,7 @@ void CB3(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
 			}
 		}
 	}
-void DEM(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
+void DEM(cVec &  x,double &y,Ref<VectorXd> s)
 	{
 	VectorXd t(3);
 	t<<5*x(0)+x(1),-5*x(0)+x(1),pow(x(0),2)+pow(x(1),2)+4*x(1);
@@ -283,8 +284,8 @@ void DEM(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
 			}
 		}
 	}
-void LQ(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
-	//void f3(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s,int optional=0)// By default
+void LQ(cVec &  x,double &y,Ref<VectorXd> s)
+	//void f3(cVec &  x,double &y,Ref<VectorXd> s,int optional=0)// By default
 	// both f(x) and a subgradient will be computed. In the future if I need to only evaluate f(x)
 	// or a subgradient, I can add more options, if optional is 1 then just evaluate objective
 	// if it is 2 then just evaluate subgradient.
@@ -343,7 +344,7 @@ void LQ(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
 
 	//}
 	}
-void QL(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s){
+void QL(cVec &  x,double &y,Ref<VectorXd> s){
 	vector<double> t(3);
 	t[0]=pow(x[0],2)+pow(x[1],2);
 	t[1]=t[0]+10*(-4*x[0]-x[1]+4);
@@ -377,7 +378,7 @@ void QL(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s){
 		}
 
 	}
-void Mifflin1(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
+void Mifflin1(cVec &  x,double &y,Ref<VectorXd> s)
 	{
 	double t=pow(x(0),2)+pow(x(1),2)-1;
 	y=-x(0)+20*max(t,0.0);
@@ -392,7 +393,7 @@ void Mifflin1(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
 		s<<-1,0;
 		}
 	}
-void Wolfe(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s){
+void Wolfe(cVec &  x,double &y,Ref<VectorXd> s){
 	if (x(0)>abs(x(1)))
 		{y=5*sqrt(9*pow(x(0),2)+16*pow(x(1),2));
 	s<<18*x(0),16*2*x(1);
@@ -461,7 +462,7 @@ void Wolfe(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s){
 	s<<9.0,0.0;
 		}
 	}
-void Chained_LQ(const Ref<const VectorXd>& x,double &y,Ref<VectorXd> s)
+void Chained_LQ(cVec &  x,double &y,Ref<VectorXd> s)
 	{
 	int n = x.size();
 	y=0.0;
@@ -480,41 +481,40 @@ for (auto i=0;i<n-1;i++)
    // s(i:i+1)=s(i:i+1)+[-1 -1]';
 	}
 }
-
-void GenMXHILB(const Ref<const VectorXd>& x, double &y, Ref<VectorXd> s)
+void GenMXHILB(const VectorXd& x, double& y, VectorXd& s)
 {
-	int n = x.size();
-	s.setZero();
-	double temp, t4,t5;
-	int k = 1;
-	VectorXd J(n);
-	J = VectorXd::LinSpaced(n, 1, n);
-	VectorXd t1(n), I(n), t2(n), t3(n);
-	I.setOnes();
-	s.setZero();
-	I.setOnes();
-	t1 = x.array() / J.array();
-	temp = t1.sum();
-	y = abs(temp);
-	for (int i = 2; i < n + 1; i++)
+	using namespace std;
+	y = 0;
+	size_t k;
+	double v, tem, t1;
+	for (size_t i = 0, size = x.size(); i < size; i++)
 	{
-		t2 = J + i*I - I;
-		t1 = x.array() / t2.array();
-		temp = t1.sum();
-		if (abs(temp) > y)
+		v = 0;
+		for (size_t j = 0, size = x.size(); j < size; j++)
+			v += (*(x.data() + j)) / (i + j + 1.0);
+		t1 = abs(v);
+		if (t1 > y)
 		{
-			y = abs(temp);
+			y = t1;
 			k = i;
+			tem = v;
 		}
 	}
-	t2 = J + k*I - I;
-	t1 = I.array() / t2.array();
-	t3 = x.array() / t2.array();
-	t4 = t3.sum();
-	if (t4 >= 0)
-		t5 = 1;
+	if (tem > 0)
+	{
+		for (size_t i = 0, size = s.size(); i < size; i++)
+		{
+			*(s.data() + i) = 1.0 / (i + k + 1);
+		}
+	}
+	else if (tem < 0)
+	{
+		for (size_t i = 0, size = s.size(); i < size; i++)
+		{
+			*(s.data() + i) = -1.0 / (i + k + 1);
+		}
+	}
 	else
-		t5 = -1;
-	s = t5 *t1;
-
+		s.setZero();
 }
+
