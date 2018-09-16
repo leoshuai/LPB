@@ -27,25 +27,17 @@ void LPB(ProbData prob, VectorXd& x, void(*feval)(const VectorXd &, double &, Ve
 {
 	using namespace std;
 	using namespace Eigen;
-	//ILOSTLBEGIN
-	//OutData o;
 	int n = x.size();
 	int k = 0;
 	int l = 0;
 	int k_l = 0;
 	bool b1 = false;
-	double fx, ModelReduction, fxs, Delta;
-	//X xStar,s;
+	double fx, ModelReduction, fxs, Delta, temp;
 	VectorXd xStar(n), s(n);
-	VectorXd xk(n);// This will be used as xk. The initial x0 will not be changed. Later I need to optimize.
-	xk = x;
 	auto started = std::chrono::high_resolution_clock::now();
-	feval(xk, fx, s);
+	feval(x, fx, s);
 	Delta = 0.1*s.norm();
 	//Delta = 1;
-	/*cout<<fx<<endl;
-	cout<<s<<endl;
-	*/
 	IloEnv env;
 	IloModel model(env);
 	IloCplex cplex(model);
@@ -57,42 +49,34 @@ void LPB(ProbData prob, VectorXd& x, void(*feval)(const VectorXd &, double &, Ve
 	IloNumArray ub(env, n);
 	IloNumArray xstar(env, n);
 	// set lower and upper bounds
-	int i;
+	size_t i;
 	for (i = 0; i < n; ++i)
 	{
-		lb[i] = xk(i) - Delta;
-		ub[i] = xk(i) + Delta;
+		temp = *(x.data() + i);
+		*lb.data(i) = temp - Delta;
+		*ub.data(i) = temp + Delta;
+		/*lb[i] = x(i) - Delta;
+		ub[i] = x(i) + Delta;*/
+		//lb.data
 	}
 	IloNumVarArray xv(env, lb, ub);
 	model.add(xv);
 	IloExpr expr(env);
-	expr += fx - s.transpose()*xk;
-	// env.out()<<expr<<endl;
-	//env.out()<<expr1<<endl;
+	expr += fx - s.transpose()*x;
 	for (i = 0; i < n; ++i)
 		expr += s(i) * xv[i];
-	// env.out()<<expr<<endl;
-	//expr1.setLinearCoef(xv[0],s(0));
-	//expr1.setLinearCoef(xv[1],s(1));
-	//env.out()<<expr1<<endl;
 	//add the first cutting plane
 	model.add(expr - z <= 0);
 	cplex.setOut(env.getNullStream());
-	// int status;
 	const Param p;
 	o.t_CPX = 0;
-	/*env.out()<<xv<<endl;
-	env.out()<<lb<<endl;
-	env.out()<<ub<<endl;
-	env.out()<<xstar<<endl;*/
-	auto done0 = std::chrono::high_resolution_clock::now();
+	/*auto done0 = std::chrono::high_resolution_clock::now();
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(done0 - started).count();
-
+*/
 	while (k < p.Iter_Limi)
 	{
 		cplex.resetTime();
 		cplex.solve();
-		// env.out()<<cplex.solve();
 		o.t_CPX += cplex.getTime();
 		// env.out()<<cplex.getStatus();
 		if (cplex.getStatus() != IloAlgorithm::Status::Optimal)
@@ -102,7 +86,6 @@ void LPB(ProbData prob, VectorXd& x, void(*feval)(const VectorXd &, double &, Ve
 			o.status = 1;
 			break;
 		}
-		// env.out()<<cplex.getObjValue();
 		ModelReduction = fx - cplex.getObjValue();
 		if (ModelReduction <= p.epsilon_tol)
 		{
@@ -110,27 +93,25 @@ void LPB(ProbData prob, VectorXd& x, void(*feval)(const VectorXd &, double &, Ve
 			o.status = 0;
 			break;
 		}
-		/*env.out()<<xv<<endl;
-		env.out()<<xstar<<endl;*/
 		cplex.getValues(xv, xstar);
-		/*cplex.getValue(xv[0],xstar[0]);
-		cplex.getValue(xv[1],xstar[1]);*/
 		for (i = 0; i < n; ++i)
-			xStar(i) = xstar[i];
+			*(xStar.data() + i) = *xstar.data(i);
+		//xStar(i) = xstar[i];
 		feval(xStar, fxs, s);
-		/*fxs=in.obj(xStar);
-		s=in.subgradient(xStar);*/
 		if (fx - fxs >= p.m*ModelReduction)// serious step
 		{
-			xk = xStar;
+			x = xStar;
 			fx = fxs;
 			k_l = k + 1;
 			l++;
 			Delta = 2 * Delta;
 			for (i = 0; i < n; i++)
 			{
-				lb[i] = xStar(i) - Delta;
-				ub[i] = xStar(i) + Delta;
+				temp = *(xStar.data() + i);
+				*lb.data(i) = temp - Delta;
+				*ub.data(i) = temp + Delta;
+				//lb[i] = xStar(i) - Delta;
+				//ub[i] = xStar(i) + Delta;
 			}
 
 		}
@@ -139,8 +120,10 @@ void LPB(ProbData prob, VectorXd& x, void(*feval)(const VectorXd &, double &, Ve
 			Delta = 0.5 * Delta;
 			for (i = 0; i < n; i++)
 			{
-				lb[i] = xk(i) - Delta;
-				ub[i] = xk(i) + Delta;
+				*lb.data(i) += Delta;
+				*ub.data(i) -= Delta;
+				//lb[i] = x(i) - Delta;
+				//ub[i] = x(i) + Delta;
 			}
 		}
 		xv.setBounds(lb, ub);
@@ -175,7 +158,6 @@ void LPB(ProbData prob, VectorXd& x, void(*feval)(const VectorXd &, double &, Ve
 	o.k = k;
 	o.L = k - l;
 	auto done = std::chrono::high_resolution_clock::now();
-	//o.t_CPX=o.t_CPX/(double) CLOCKS_PER_SEC;
 	cout << o.status << " is the status\n";
 	cout << o.Error << " is the error\n";
 	cout << o.f_final << " is the final value\n";
@@ -187,32 +169,52 @@ void LPB(ProbData prob, VectorXd& x, void(*feval)(const VectorXd &, double &, Ve
 	o.time = elapsed.count();
 	cout << o.time << " is the time\n";
 	cout << o.t_CPX << " is the cplex time\n";
-	//return o;
 }
 
 void GenMXH() {
 	using namespace std;
-	VectorXd mxl(50), mxl1(1000), mxl2(2000);
-	mxl.setOnes(); mxl1.setOnes(); mxl2.setOnes();
-	//mxl = mxl*0.4; mxl1 = mxl1*0.4; mxl2 = mxl2*1.5;
-	OutData oml, oml1, oml2;
+	VectorXd mxl(50), mxl1(1000), mxl2(2000),mxl3(5000),mxl4(1000);
+	mxl.setOnes(); mxl1.setOnes(); mxl2.setOnes(); mxl3.setOnes();mxl4.setOnes();
+	mxl *= 2.4; mxl1 *=2.4; mxl2 *= 2.4; mxl3 *= 2.4;
+	OutData oml, oml1, oml2,oml3,oml4;
 	ProbData MXL = { "MXLHIB",0.0 };
-	LPB(MXL, mxl, GenMXHILB,oml);
+	LPB(MXL, mxl, GenMXHILB, oml);
 	LPB(MXL, mxl1, GenMXHILB, oml1);
 	LPB(MXL, mxl2, GenMXHILB, oml2);
+	LPB(MXL, mxl3, GenMXHILB, oml3);
+	LPB(MXL, mxl4, GenMXHILB, oml4);
 	ofstream myfi;
-	myfi.open("afile.txt");
+	myfi.open("afile2d4Start.txt");
 	myfi << '8' << '&' << oml.Error << '&' << oml.No_func_eval << '&' << oml.k << '&' << oml.L << '&' << oml.time << '&' << oml.t_CPX << "\\\\" << endl << "\\hline" << endl;
 	myfi << '9' << '&' << oml1.Error << '&' << oml1.No_func_eval << '&' << oml1.k << '&' << oml1.L << '&' << oml1.time << '&' << oml1.t_CPX << "\\\\" << endl << "\\hline" << endl;
 	myfi << "10" << '&' << oml2.Error << '&' << oml2.No_func_eval << '&' << oml2.k << '&' << oml2.L << '&' << oml2.time << '&' << oml2.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	myfi << "11" << '&' << oml3.Error << '&' << oml3.No_func_eval << '&' << oml3.k << '&' << oml3.L << '&' << oml3.time << '&' << oml3.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	myfi << "12" << '&' << oml4.Error << '&' << oml4.No_func_eval << '&' << oml4.k << '&' << oml4.L << '&' << oml4.time << '&' << oml4.t_CPX << "\\\\" << endl << "\\hline" << endl;
+
 	myfi.close();
 }
 int _tmain(int argc, _TCHAR* argv[])
-	{
-	//using namespace std;
+{
+	using namespace std;
 	//smallProbs7();
 	GenMXH();
-	return 0;
+	IloEnv env;
+	IloModel model(env);
+	IloCplex cplex(model);
+	int n = 5;
+	VectorXd x(n);
+	x << 1, 2, 3, 4, 5;
+	double Delta = 1.2;
+	IloNumArray lb(env, n);
+	IloNumArray ub(env, n);
+	for (size_t i = 0; i < n; ++i)
+	{
+		lb[i] = x(i) - Delta;
+		ub[i] = x(i) + Delta;
+		//lb.data
+		cout << *lb.data(i);
 	}
+	return 0;
+}
 
 
