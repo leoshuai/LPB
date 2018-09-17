@@ -35,3 +35,7 @@ public:
 };
 void LPB(ProbData prob, Eigen::VectorXd& x,
 	void(*feval)(const Eigen::VectorXd &, double &, Eigen::VectorXd&), OutData & o);
+void LPBdelta1(ProbData prob, Eigen::VectorXd& x,
+	void(*feval)(const Eigen::VectorXd &, double &, Eigen::VectorXd&), OutData & o);
+
+

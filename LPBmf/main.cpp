@@ -11,25 +11,25 @@ void GenMXH() {
 	mxl.setOnes(); mxl1.setOnes(); mxl2.setOnes(); mxl3.setOnes(); mxl4.setOnes();
 	OutData oml, oml1, oml2, oml3, oml4;
 	ProbData MXL = { "MXLHIB",0.0 };
-	LPB(MXL, mxl, GenMXHILB, oml);
-	LPB(MXL, mxl1, GenMXHILB, oml1);
-	LPB(MXL, mxl2, GenMXHILB, oml2);
-	LPB(MXL, mxl3, GenMXHILB, oml3);
-	LPB(MXL, mxl4, GenMXHILB, oml4);
+	/*LPBdelta1(MXL, mxl, GenMXHILB, oml);
+	LPBdelta1(MXL, mxl1, GenMXHILB, oml1);
+	LPBdelta1(MXL, mxl2, GenMXHILB, oml2);
+	LPBdelta1(MXL, mxl3, GenMXHILB, oml3);
+	LPBdelta1(MXL, mxl4, GenMXHILB, oml4);*/
 	ofstream myfi;
-	myfi.open("afileCombined.txt");
-	myfi << '8' << '&' << oml.Error << '&' << oml.No_func_eval << '&' << oml.k << '&' << oml.L << '&' << oml.time << '&' << oml.t_CPX << "\\\\" << endl << "\\hline" << endl;
-	myfi << '9' << '&' << oml1.Error << '&' << oml1.No_func_eval << '&' << oml1.k << '&' << oml1.L << '&' << oml1.time << '&' << oml1.t_CPX << "\\\\" << endl << "\\hline" << endl;
-	myfi << "10" << '&' << oml2.Error << '&' << oml2.No_func_eval << '&' << oml2.k << '&' << oml2.L << '&' << oml2.time << '&' << oml2.t_CPX << "\\\\" << endl << "\\hline" << endl;
-	myfi << "11" << '&' << oml3.Error << '&' << oml3.No_func_eval << '&' << oml3.k << '&' << oml3.L << '&' << oml3.time << '&' << oml3.t_CPX << "\\\\" << endl << "\\hline" << endl;
-	myfi << "12" << '&' << oml4.Error << '&' << oml4.No_func_eval << '&' << oml4.k << '&' << oml4.L << '&' << oml4.time << '&' << oml4.t_CPX << "\\\\" << endl << "\\hline" << endl;
-	// Now using new starting points
+	myfi.open("delta1NoCombined2d4.txt");
+	//myfi << '8' << '&' << oml.Error << '&' << oml.No_func_eval << '&' << oml.k << '&' << oml.L << '&' << oml.time << '&' << oml.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	//myfi << '9' << '&' << oml1.Error << '&' << oml1.No_func_eval << '&' << oml1.k << '&' << oml1.L << '&' << oml1.time << '&' << oml1.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	//myfi << "10" << '&' << oml2.Error << '&' << oml2.No_func_eval << '&' << oml2.k << '&' << oml2.L << '&' << oml2.time << '&' << oml2.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	//myfi << "11" << '&' << oml3.Error << '&' << oml3.No_func_eval << '&' << oml3.k << '&' << oml3.L << '&' << oml3.time << '&' << oml3.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	//myfi << "12" << '&' << oml4.Error << '&' << oml4.No_func_eval << '&' << oml4.k << '&' << oml4.L << '&' << oml4.time << '&' << oml4.t_CPX << "\\\\" << endl << "\\hline" << endl;
+	//// Now using new starting points
 	mxl *= 2.4; mxl1 *= 2.4; mxl2 *= 2.4; mxl3 *= 2.4; mxl4 *= 2.4;
-	LPB(MXL, mxl, GenMXHILB, oml);
-	LPB(MXL, mxl1, GenMXHILB, oml1);
-	LPB(MXL, mxl2, GenMXHILB, oml2);
-	LPB(MXL, mxl3, GenMXHILB, oml3);
-	LPB(MXL, mxl4, GenMXHILB, oml4);
+	LPBdelta1(MXL, mxl, GenMXHILB, oml);
+	LPBdelta1(MXL, mxl1, GenMXHILB, oml1);
+	LPBdelta1(MXL, mxl2, GenMXHILB, oml2);
+	LPBdelta1(MXL, mxl3, GenMXHILB, oml3);
+	LPBdelta1(MXL, mxl4, GenMXHILB, oml4);
 	myfi << '13' << '&' << oml.Error << '&' << oml.No_func_eval << '&' << oml.k << '&' << oml.L << '&' << oml.time << '&' << oml.t_CPX << "\\\\" << endl << "\\hline" << endl;
 	myfi << '14' << '&' << oml1.Error << '&' << oml1.No_func_eval << '&' << oml1.k << '&' << oml1.L << '&' << oml1.time << '&' << oml1.t_CPX << "\\\\" << endl << "\\hline" << endl;
 	myfi << "15" << '&' << oml2.Error << '&' << oml2.No_func_eval << '&' << oml2.k << '&' << oml2.L << '&' << oml2.time << '&' << oml2.t_CPX << "\\\\" << endl << "\\hline" << endl;
@@ -63,11 +63,11 @@ void smallProbs7() {
 	VectorXd x(2);
 	OutData out;
 	ofstream myfile;
-	myfile.open("output.txt");
+	myfile.open("delta1output20.txt");
 	for (size_t r = 0; r < Num_of_Probs; r++)
 	{
 		x=X.col(r);
-		LPB(probArray[r],x, FunctionPointers[r],out);
+		LPBdelta1(probArray[r],x, FunctionPointers[r],out);
 		myfile << r+1 << '&' << out.Error << '&' << out.No_func_eval << '&' << out.k 
 			<< '&' << out.L << '&' << out.time << '&' << out.t_CPX << "\\\\" << endl 
 			<< "\\hline" << endl;
@@ -77,7 +77,7 @@ void smallProbs7() {
 int _tmain(int argc, _TCHAR* argv[])
 {
 //	using namespace std;
-	smallProbs7();
+	//smallProbs7();
 	GenMXH();
 	return 0;
 }
