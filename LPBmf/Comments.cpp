@@ -1,4 +1,32 @@
-//std::ostream& operator<<(std::ostream& os, const OutData& outData) {
+MatrixXd X(2, 7);
+X.col(0) << 1, -0.1;
+X.col(1) << 2, 2;
+X.col(2) << 1, 1;
+X.col(3) << -1, 5;
+X.col(4) << -0.5, -0.5;
+X.col(5) << 0.8, 0.6;
+X.col(6) << 3, 2;
+cout << X;
+VectorXd x(2);
+x = X.col(6);
+cout << endl << x;
+
+IloEnv env;
+IloModel model(env);
+IloCplex cplex(model);
+int n = 5;
+VectorXd x(n);
+x << 1, 2, 3, 4, 5;
+double Delta = 1.2;
+IloNumArray lb(env, n);
+IloNumArray ub(env, n);
+for (size_t i = 0; i < n; ++i)
+{
+	lb[i] = x(i) - Delta;
+	ub[i] = x(i) + Delta;
+	//lb.data
+	cout << *lb.data(i);
+}//std::ostream& operator<<(std::ostream& os, const OutData& outData) {
 //	return os << '&' << outData.Error
 //		<< '&' << outData.No_func_eval
 //		<< '&' << outData.k

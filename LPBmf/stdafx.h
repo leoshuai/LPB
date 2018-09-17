@@ -18,9 +18,9 @@
 #include <ilconcert/iloexpression.h>
 #include "LPB.h"
 #include "InFunctions.h"
-#include "utilities.h"
 // not needed
 //#include <cassert>
-//
+//#include "utilities.h"
+
 //
 //#include <algorithm>
