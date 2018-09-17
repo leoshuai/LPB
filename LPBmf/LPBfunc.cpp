@@ -24,28 +24,31 @@ void LPB(ProbData prob, VectorXd& x,
 		// declaring it.
 {
 	using namespace std;
-	int n = x.size();
 	int k = 0;
 	int l = 0;// Iterator for serious steps
 	bool b1 = false;
+	size_t i;
 	double fx, ModelReduction, fxs, Delta, temp;
-	VectorXd xStar(n), s(n);
-	auto started = std::chrono::high_resolution_clock::now();
-	feval(x, fx, s);
-	Delta = 0.1*s.norm();
-	//Delta = 1;
+	const Param p;
+	o.t_CPX = 0;
 	IloEnv env;
 	IloModel model(env);
 	IloCplex cplex(model);
+	IloExpr expr(env);
 	//cplex.setParam(IloCplex::Param::Simplex::Tolerances::Optimality, 1e-9);
 	//cplex.setParam(IloCplex::Param::Simplex::Tolerances::Feasibility,1e-9);
 	IloNumVar z(env, -IloInfinity, IloInfinity);
 	model.add(IloMinimize(env, z));
+	auto started = std::chrono::high_resolution_clock::now();
+	int n = x.size();
+	VectorXd xStar(n), s(n);
+	feval(x, fx, s);
+	Delta = 0.1*s.norm();
+	//Delta = 1;
 	IloNumArray lb(env, n);
 	IloNumArray ub(env, n);
 	IloNumArray xstar(env, n);
 	// set lower and upper bounds
-	size_t i;
 	for (i = 0; i < n; ++i)
 	{
 		temp = *(x.data() + i);
@@ -54,20 +57,22 @@ void LPB(ProbData prob, VectorXd& x,
 		}
 	IloNumVarArray xv(env, lb, ub);
 	model.add(xv);
-	IloExpr expr(env);
 	expr += fx - s.transpose()*x;
 	for (i = 0; i < n; ++i)
 		expr += s(i) * xv[i];
 	//add the first cutting plane
 	model.add(expr - z <= 0);
 	cplex.setOut(env.getNullStream());
-	const Param p;
-	o.t_CPX = 0;
 	while (k < p.Iter_Limi)
 	{
-		cplex.resetTime();
+		//cplex.resetTime();
+		auto cplexStart = std::chrono::high_resolution_clock::now();
 		cplex.solve();
-		o.t_CPX += cplex.getTime();
+		auto cplexdone = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> cplexElapsed = cplexdone - cplexStart;
+			//std::chrono::duration_cast<std::chrono::milliseconds>(cplexdone - cplexStart);
+		o.t_CPX += cplexElapsed.count();
+		//o.t_CPX += cplex.getTime();
 		if (cplex.getStatus() != IloAlgorithm::Status::Optimal)
 		{
 			env.out() << "\n Solution status = " << cplex.getStatus() << endl;
@@ -122,6 +127,10 @@ void LPB(ProbData prob, VectorXd& x,
 	else
 		o.f_final = fxs;	
 	o.Error = o.f_final - prob.f_optimal;
+	o.No_func_eval = k;
+	o.k = k;
+	o.L = k - l;// Number of null steps = k minus the number of serious steps
+	auto done = std::chrono::high_resolution_clock::now();
 	if (b1)
 		cout << "\n SuccesS! Result:\nk=" << k << ", f_val=" << fx << ", error=" << o.Error << endl;
 	else
@@ -129,17 +138,14 @@ void LPB(ProbData prob, VectorXd& x,
 		cout << "\n iter limit Result:\nk=" << k << ", f_val=" << fx << ", error=" << o.Error << endl;
 		o.status = 2;
 	}
-	o.No_func_eval = k;
-	o.k = k;
-	o.L = k - l;// Number of null steps = k minus the number of serious steps
-	auto done = std::chrono::high_resolution_clock::now();
 	cout << o.status << " is the status\n";
 	cout << o.Error << " is the error\n";
 	cout << o.f_final << " is the final value\n";
 	cout << o.k << " is the k\n";
 	cout << o.L << " is the number of null steps\n";
 	cout << o.No_func_eval << " is the no of func eval\n";
-	std::chrono::duration<double> elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(done - started);
+	std::chrono::duration<double> elapsed = done - started;
+		//std::chrono::duration_cast<std::chrono::milliseconds>(done - started);
 	o.time = elapsed.count();
 	cout << o.time << " is the time\n";
 	cout << o.t_CPX << " is the cplex time\n";
@@ -210,9 +216,11 @@ void LPBdelta1(ProbData prob, VectorXd& x,
 	o.t_CPX = 0;
 	while (k < p.Iter_Limi)
 	{
-		cplex.resetTime();
+		auto cplexStart = std::chrono::high_resolution_clock::now();
 		cplex.solve();
-		o.t_CPX += cplex.getTime();
+		auto cplexdone = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> cplexElapsed = cplexdone - cplexStart;
+		o.t_CPX += cplexElapsed.count();
 		if (cplex.getStatus() != IloAlgorithm::Status::Optimal)
 		{
 			env.out() << "\n Solution status = " << cplex.getStatus() << endl;
@@ -285,7 +293,8 @@ void LPBdelta1(ProbData prob, VectorXd& x,
 	cout << o.k << " is the k\n";
 	cout << o.L << " is the number of null steps\n";
 	cout << o.No_func_eval << " is the no of func eval\n";
-	std::chrono::duration<double> elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(done - started);
+	std::chrono::duration<double> elapsed = done - started;
+		//std::chrono::duration_cast<std::chrono::milliseconds>(done - started);
 	o.time = elapsed.count();
 	cout << o.time << " is the time\n";
 	cout << o.t_CPX << " is the cplex time\n";

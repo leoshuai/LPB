@@ -1,3 +1,8 @@
+/*const double number = 123456.789;
+	double a = 0.00253;
+	std::cout << std::setprecision(1) << std::scientific << number << std::endl;
+	cout <<defaultfloat<< setprecision(2) << a << "   " << number << endl;
+	*/
 MatrixXd X(2, 7);
 X.col(0) << 1, -0.1;
 X.col(1) << 2, 2;
