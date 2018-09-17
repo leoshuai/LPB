@@ -33,7 +33,5 @@ public:
 		Iter_Limi(itli)
 	{}
 };
-using namespace Eigen;
-//typedef const Eigen::Ref<const Eigen::VectorXd> cVec;
-
-//template<typename T>
+void LPB(ProbData prob, Eigen::VectorXd& x,
+	void(*feval)(const Eigen::VectorXd &, double &, Eigen::VectorXd&), OutData & o);

@@ -19,18 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\Google Drive (shuai0liu%40gmail.com)\Academic\My writings\C++Implementations\LPB\LPBmf\Comments.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\Google Drive (shuai0liu%40gmail.com)\Academic\My writings\C++Implementations\LPB\LPBmf\LPBfunc.cpp" />
     <ClCompile Include="InFunctions.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InFunctions.h" />
     <ClInclude Include="LPB.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="utilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8AEF15C3-8C9A-4E0D-94F3-8AC38F263354}</ProjectGuid>

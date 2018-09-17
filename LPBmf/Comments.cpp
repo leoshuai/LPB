@@ -1,3 +1,14 @@
+//std::ostream& operator<<(std::ostream& os, const OutData& outData) {
+//	return os << '&' << outData.Error
+//		<< '&' << outData.No_func_eval
+//		<< '&' << outData.k
+//		<< '&' << outData.L
+//		<< '&' << outData.time
+//		<< '&' << outData.t_CPX
+//		<< "\\\\" << std::endl << "\\hline" << std::endl;
+//
+//}
+
 /*myfile << r+1 << '&' << out.Error << '&' << out.No_func_eval;
 		myfile << '&' << out.k << '&' << out.L << '&';
 		myfile<<scientific<< out.time << '&' << out.t_CPX << "" << endl << "\\hline" << endl;*/

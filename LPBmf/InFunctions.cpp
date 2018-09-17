@@ -8,8 +8,7 @@ template<typename T>double one_norm(T& x)// One norm of a vector
 	}
 using namespace Eigen;
 using namespace std;
-typedef const Eigen::Ref<const Eigen::VectorXd> cVec;
-void CB2(cVec &  x,double &y,Ref<VectorXd> s)
+void CB2(const VectorXd  &  x,double &y,VectorXd & s)
 	{
 	VectorXd t(3);
 	t<<pow(x(1),4)+pow(x(0),2),pow(2-x(0),2)+pow(2-x(1),2),2*exp(x(1)-x(0));
@@ -101,7 +100,7 @@ void CB2(cVec &  x,double &y,Ref<VectorXd> s)
 			}
 		}
 	}
-void CB3(cVec &  x,double &y,Ref<VectorXd> s)
+void CB3(const VectorXd  &  x,double &y,VectorXd & s)
 	{
 	VectorXd t(3);
 	t<<pow(x(1),2)+pow(x(0),4),pow(2-x(0),2)+pow(2-x(1),2),2*exp(x(1)-x(0));
@@ -193,7 +192,7 @@ void CB3(cVec &  x,double &y,Ref<VectorXd> s)
 			}
 		}
 	}
-void DEM(cVec &  x,double &y,Ref<VectorXd> s)
+void DEM(const VectorXd  &  x,double &y,VectorXd & s)
 	{
 	VectorXd t(3);
 	t<<5*x(0)+x(1),-5*x(0)+x(1),pow(x(0),2)+pow(x(1),2)+4*x(1);
@@ -284,8 +283,8 @@ void DEM(cVec &  x,double &y,Ref<VectorXd> s)
 			}
 		}
 	}
-void LQ(cVec &  x,double &y,Ref<VectorXd> s)
-	//void f3(cVec &  x,double &y,Ref<VectorXd> s,int optional=0)// By default
+void LQ(const VectorXd  &  x,double &y,VectorXd & s)
+	//void f3(const VectorXd  &  x,double &y,VectorXd & s,int optional=0)// By default
 	// both f(x) and a subgradient will be computed. In the future if I need to only evaluate f(x)
 	// or a subgradient, I can add more options, if optional is 1 then just evaluate objective
 	// if it is 2 then just evaluate subgradient.
@@ -344,7 +343,7 @@ void LQ(cVec &  x,double &y,Ref<VectorXd> s)
 
 	//}
 	}
-void QL(cVec &  x,double &y,Ref<VectorXd> s){
+void QL(const VectorXd  &  x,double &y,VectorXd & s){
 	vector<double> t(3);
 	t[0]=pow(x[0],2)+pow(x[1],2);
 	t[1]=t[0]+10*(-4*x[0]-x[1]+4);
@@ -378,7 +377,7 @@ void QL(cVec &  x,double &y,Ref<VectorXd> s){
 		}
 
 	}
-void Mifflin1(cVec &  x,double &y,Ref<VectorXd> s)
+void Mifflin1(const VectorXd  &  x,double &y,VectorXd & s)
 	{
 	double t=pow(x(0),2)+pow(x(1),2)-1;
 	y=-x(0)+20*max(t,0.0);
@@ -393,7 +392,7 @@ void Mifflin1(cVec &  x,double &y,Ref<VectorXd> s)
 		s<<-1,0;
 		}
 	}
-void Wolfe(cVec &  x,double &y,Ref<VectorXd> s){
+void Wolfe(const VectorXd  &  x,double &y,VectorXd & s){
 	if (x(0)>abs(x(1)))
 		{y=5*sqrt(9*pow(x(0),2)+16*pow(x(1),2));
 	s<<18*x(0),16*2*x(1);
@@ -462,7 +461,7 @@ void Wolfe(cVec &  x,double &y,Ref<VectorXd> s){
 	s<<9.0,0.0;
 		}
 	}
-void Chained_LQ(cVec &  x,double &y,Ref<VectorXd> s)
+void Chained_LQ(const VectorXd  &  x,double &y,VectorXd & s)
 	{
 	int n = x.size();
 	y=0.0;
